@@ -187,13 +187,6 @@
       },
       home() {
         console.log(this.independentDataList);
-      },
-      removeSoftware (softwareList, softwareName) {
-        softwareList.forEach(software=>index=>originSoftwareList=>{
-          if (software.softwareName == softwareName) {
-              originSoftwareList.splice(index);
-          }
-        })
       }
     }
   }
