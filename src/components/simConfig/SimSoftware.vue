@@ -59,24 +59,24 @@
               </div>
             </el-col>
             <el-col :span="19">
-              <div class="text-indent" style="margin-top: 8px">
+              <div class="text-indent">
                 <el-checkbox-group v-model="uniteDataList">
-                  <p class="line-num">
+                  <p class="line-num check-cla">
                     <el-checkbox label="Matlab">Matlab</el-checkbox>
                   </p>
-                  <p class="line-num">
+                  <p class="line-num check-cla">
                     <el-checkbox label="Fluent">Fluent</el-checkbox>
                   </p>
-                  <p class="line-num">
+                  <p class="line-num check-cla">
                     <el-checkbox label="Multisim">Multisim</el-checkbox>
                   </p>
-                  <p class="line-num">
+                  <p class="line-num check-cla">
                     <el-checkbox label="Proteus">Proteus</el-checkbox>
                   </p>
-                  <p class="line-num">
+                  <p class="line-num check-cla">
                     <el-checkbox label="Automation">Automation</el-checkbox>
                   </p>
-                  <p class="line-num">
+                  <p class="line-num check-cla">
                     <el-checkbox label="Labview">Labview</el-checkbox>
                   </p>
                 </el-checkbox-group>
@@ -212,6 +212,9 @@
 
   .line-num {
     line-height: 25px;
+  }
+  .check-cla{
+    line-height: 35px;
   }
 
   .fixed-menu {
