@@ -143,28 +143,25 @@
     name: "ProcessParameter",
     data() {
       return {
+        //添加标识和删除标识
+        softWareName:"",
+        modelName:"",
         simulationSwitch: false,
         dialogSimulationVisible: false,
         formLabelWidth: '70px',
         simulationList:[],
-        ddsConfigList:[
-          {domain: "主域", role: "高级", topicName: "jack",QoS:"no"},
-          {domain: "副域", role: "初级", topicName: "tom",QoS:"yes"},
-        ],
+        ddsConfigList:[],
         ddsModeName:"",
         simulationModel:{
-          //域
           domain: '',
-          //角色
           role: '',
-          //主题名称
           topicName: '',
-          //QoS
           QoS: ''
         }
       }
     },
     mounted(){
+        //模型展示
         let simulationTools = [];
         let modelName = [];
         let modelItem = [];
@@ -189,8 +186,41 @@
     methods: {
       //编辑仿真列表
       handleDdsDetail(index,row) {
+        this.softWareName = row.softWareName;
+        this.modelName = row.name;
         this.simulationSwitch = true;
         this.ddsModeName = row.name;
+        let software = this.$store.state.project.software;
+        this.ddsConfigList = [];
+        software.forEach((item,index) => {
+          if(item.softwareName === row.softwareName){
+            item.model.forEach((item2,index2) => {
+              if(item2.name === row.name){
+                item2.subjectDDS.forEach((item3,index3) =>{
+                  this.ddsConfigList.push({
+                    domain: item3.domain,
+                    role: item3.role,
+                    topicName: item3.topicName,
+                    QoS: item3.QoS
+                  })
+                })
+              }
+            })
+          }else{
+            item.model.forEach((item4,index4) => {
+              if(item4.name === row.name){
+                item4.subjectDDS.forEach((item5,index5) =>{
+                  this.ddsConfigList.push({
+                    domain: item5.domain,
+                    role: item5.role,
+                    topicName: item5.topicName,
+                    QoS: item5.QoS
+                  })
+                })
+              }
+            })
+          }
+        })
       },
       //删除DDS配置
       delDdsData(index,row){
@@ -223,7 +253,17 @@
         this.$router.replace({path: '/config/modelParam'});
       },
       next() {
-        this.$router.replace({path: '/manage/listener'});
+        let software = this.$store.state.project.software;
+        for(let i=0;i<software.length;i++){
+          for(let j=0;j<software[i].model.length;j++){
+            // software[i].model[j].subjectDDS = this.ddsConfigList;
+            for(let k=0;k<this.ddsConfigList.length;k++){
+              software[i].model[j].subjectDDS.push(this.ddsConfigList[k]);
+            }
+          }
+        }
+        console.log(software)
+        // this.$router.replace({path: '/manage/listener'});
       }
     }
   }
