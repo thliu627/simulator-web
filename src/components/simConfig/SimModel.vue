@@ -316,7 +316,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  align="left"
+                  align="right"
                   label="上传文件">
                   <template slot-scope="scope">
                     <el-upload
