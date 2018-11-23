@@ -28,19 +28,19 @@ export default new Vuex.Store({
           //模型(数组)
           model: [
             {
+              //模型类别
+              modelType: '',
               //模型名称
               name: '',
               //模型文件(数组)
-              file: [
-                {
+              file: {
                   //文件标识
                   fileId: '',
                   //文件名称
                   fileName: '',
                   //文件路径
                   filePath: ''
-                }
-              ],
+              },
               //数据源
               dataSource: '',
               //模型DDS(数组)
@@ -109,6 +109,24 @@ export default new Vuex.Store({
         }
       ]
     },
+    //请求 获取结果列表
+    request: {
+      name: ''
+    },
+    //响应 获取结果列表
+    response: [{
+      softwareName: '',
+      moduleName:'',
+      fileId: '',
+      fileName: '',
+      filePath: ''
+    },{
+      softwareName: '',
+      moduleName:'',
+      fileId: '',
+      fileName: '',
+      filePath: ''
+    }],
     routes: [],
     msgList: [],
     isDotMap: new Map(),
