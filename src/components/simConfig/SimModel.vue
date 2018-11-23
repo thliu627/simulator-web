@@ -503,9 +503,7 @@
           }
         })
         this.$store.state.project.software = softwareList;
-        console.log(this.$store.state.project.software);
-        console.log(JSON.stringify(softwareList));
-        console.log(JSON.stringify(this.MatlabModelList));
+        this.$router.replace({path: '/config/modelParam'});
       },
       uploadSuccess(resp, file, fileList, row) {
         if (file != undefined) {
