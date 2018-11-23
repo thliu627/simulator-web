@@ -36,11 +36,10 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  align="left"
+                  align="right"
                   label="上传文件">
                   <template slot-scope="scope">
                     <el-upload
-                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
@@ -92,7 +91,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  align="left"
+                  align="right"
                   label="上传文件">
                   <template slot-scope="scope">
                     <el-upload
@@ -148,7 +147,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  align="left"
+                  align="right"
                   label="上传文件">
                   <template slot-scope="scope">
                     <el-upload
@@ -204,7 +203,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  align="left"
+                  align="right"
                   label="上传文件">
                   <template slot-scope="scope">
                     <el-upload
@@ -248,7 +247,7 @@
                 </el-table-column>
                 <el-table-column
                   prop="modelType"
-                  align="left"
+                  align="right"
                   label="模型类型">
                   <template slot-scope="scope">
                     <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
@@ -544,6 +543,9 @@
   .simulation-model {
     width: 700px;
     margin: 0 auto;
+  }
+  .wz-cl{
+    float: right;
   }
 
   .fixed-menu {
