@@ -335,9 +335,11 @@
         softwareList.forEach(software => {
           software.model.forEach(model => {
             if (software.softwareName == this.current.softwareName &&
-                model.name == this.current.modelName &&
-                model.modelType == this.current.modelType) {
-              this.ddsList = model.modelDDS;
+              model.name == this.current.modelName &&
+              model.modelType == this.current.modelType) {
+              if (model.modelDDS != undefined) {
+                this.ddsList = model.modelDDS;
+              }
             }
           })
         });
@@ -359,9 +361,13 @@
             if (software.softwareName == this.current.softwareName &&
               model.name == this.current.modelName &&
               model.modelType == this.current.modelType) {
-              if (model.param != null || model.param != null || model.param != undefined) {
-                this.inputParamList = model.param.inputParamList;
-                this.inputParamList = model.param.outputParamList;
+              if (model.param != undefined) {
+                if (model.param.inputParam != undefined) {
+                  this.inputParamList = model.param.inputParam;
+                }
+                if (model.param.outputParam != undefined) {
+                  this.outputParamList = model.param.outputParam;
+                }
               }
             }
           })
@@ -378,16 +384,18 @@
         let softwareList = this.$store.state.project.software;
         softwareList.forEach(software => {
           software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
-              if (model.param != null || model.param != null || model.param != undefined) {
-                model.modelDDS = this.ddsList;
+            this.modelList.forEach(currentMode=>{
+              if (software.softwareName == currentMode.softwareName &&
+                model.name == currentMode.modelName &&
+                model.modelType == currentMode.modelType) {
+                model.dataSource = currentMode.dataSource;
               }
-            }
+            })
           })
         });
-        // this.$router.replace({path: '/config/processParam'});
+        this.$store.state.project.software = softwareList;
+        console.log(JSON.stringify(this.$store.state.project));
+        this.$router.replace({path: '/config/processParam'});
       },
       addDdsRow() {
         let dds = {
@@ -396,6 +404,9 @@
           topicName: '',
           QoS: '默认'
         };
+        if (this.ddsList == undefined) {
+          this.ddsList = [];
+        }
         this.ddsList.push(dds);
       },
       addInputParamRow() {
@@ -404,6 +415,9 @@
           value: '',
           isInteractive: 'true'
         };
+        if (this.inputParamList == undefined) {
+          this.inputParamList = [];
+        }
         this.inputParamList.push(inputParam);
       },
       addOutputParamRow() {
@@ -413,9 +427,12 @@
           param: '',
           isInteractive: 'true'
         };
+        if (this.outputParamList == undefined) {
+          this.outputParamList = [];
+        }
         this.outputParamList.push(outputParam);
       },
-      removeRow (index, rowList) {
+      removeRow(index, rowList) {
         rowList.splice(index, 1);
       },
       saveDds() {
@@ -425,7 +442,7 @@
             if (software.softwareName == this.current.softwareName &&
               model.name == this.current.modelName &&
               model.modelType == this.current.modelType) {
-              if (model.param != null || model.param != null || model.param != undefined) {
+              if (model != undefined) {
                 model.modelDDS = this.ddsList;
               }
             }
@@ -441,8 +458,17 @@
             if (software.softwareName == this.current.softwareName &&
               model.name == this.current.modelName &&
               model.modelType == this.current.modelType) {
-              if (model.param != null || model.param != null || model.param != undefined) {
-                model.param.outputParamList = this.inputParamList;
+              //为了不破坏输出参数原数据
+              if (model != undefined) {
+                let originOutputParam = [];
+                if (model.param != undefined && model.param.outputParam != undefined) {
+                  originOutputParam = model.param.outputParam;
+                }
+                model.param = {
+                  inputParam: this.inputParamList,
+                  outputParam: originOutputParam
+                }
+                console.log(model);
               }
             }
           })
@@ -457,9 +483,16 @@
             if (software.softwareName == this.current.softwareName &&
               model.name == this.current.modelName &&
               model.modelType == this.current.modelType) {
-              if (model.param != null || model.param != null || model.param != undefined) {
-                this.inputParamList = model.param.inputParamList;
-                model.param.outputParamList = this.outputParamList;
+              //为了不破坏输入参数原数据
+              if (model != undefined) {
+                let originInputParam = [];
+                if (model.param != undefined && model.param.inputParam != undefined) {
+                  originInputParam = model.param.inputParam;
+                }
+                model.param = {
+                  inputParam: originInputParam,
+                  outputParam: this.outputParamList
+                }
               }
             }
           })
