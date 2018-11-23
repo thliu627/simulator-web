@@ -6,7 +6,9 @@
           <el-tabs v-model="activeName">
             <p>模型选择</p>
             <el-tab-pane v-if="softwareShowList.indexOf('Matlab') > -1" label="Matlab" name="Matlab">
-              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(MatlabModelList)">添加模型</el-button>
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary"
+                         @click="addModel(MatlabModelList)">添加模型
+              </el-button>
               <el-table
                 :data="MatlabModelList"
                 ref="MatlabModelTable"
@@ -62,7 +64,9 @@
             </el-tab-pane>
 
             <el-tab-pane v-if="softwareShowList.indexOf('Fluent') > -1" label="Fluent" name="Fluent">
-              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(FluentModelList)">添加模型</el-button>
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary"
+                         @click="addModel(FluentModelList)">添加模型
+              </el-button>
               <el-table
                 :data="FluentModelList"
                 ref="FluentModelTable"
@@ -118,7 +122,9 @@
             </el-tab-pane>
 
             <el-tab-pane v-if="softwareShowList.indexOf('Multisim') > -1" label="Multisim" name="Multisim">
-              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(MultisimModelList)">添加模型</el-button>
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary"
+                         @click="addModel(MultisimModelList)">添加模型
+              </el-button>
               <el-table
                 :data="MultisimModelList"
                 ref="MultisimModelTable"
@@ -174,7 +180,9 @@
             </el-tab-pane>
 
             <el-tab-pane v-if="softwareShowList.indexOf('Proteus') > -1" label="Proteus" name="Proteus">
-              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(ProteusModelList)">添加模型</el-button>
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary"
+                         @click="addModel(ProteusModelList)">添加模型
+              </el-button>
               <el-table
                 :data="ProteusModelList"
                 ref="ProteusModelTable"
@@ -230,7 +238,9 @@
             </el-tab-pane>
 
             <el-tab-pane v-if="softwareShowList.indexOf('Automation') > -1" label="Automation" name="Automation">
-              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(AutomationModelList)">添加模型</el-button>
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary"
+                         @click="addModel(AutomationModelList)">添加模型
+              </el-button>
               <el-table
                 :data="AutomationModelList"
                 ref="AutomationModelTable"
@@ -287,7 +297,9 @@
 
 
             <el-tab-pane v-if="softwareShowList.indexOf('Labview') > -1" label="Labview" name="Labview">
-              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(LabviewModelList)">添加模型</el-button>
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary"
+                         @click="addModel(LabviewModelList)">添加模型
+              </el-button>
               <el-table
                 :data="LabviewModelList"
                 ref="LabviewModelTable"
@@ -444,27 +456,53 @@
         uploadLimit: 1,
       }
     },
-    mounted: function() {
+    mounted: function () {
       this.initData();
     },
     methods: {
-      initData () {
+      initData() {
         this.clearModelList();
 
         let softwareList = this.$store.state.project.software;
-        softwareList.forEach(software=> {
-          console.log(software);
+        softwareList.forEach(software => {
           if (this.activeName == 0) {
             this.activeName = software.softwareName;
           }
           this.softwareShowList.push(software.softwareName);
         });
 
-        this.softwareSequence.forEach(softwareName=>{
-          this.softwareShowList.forEach(software=> {
+        this.softwareSequence.forEach(softwareName => {
+          this.softwareShowList.forEach(software => {
             if (software.softwareName == softwareName) {
               this.activeName = softwareName;
               return;
+            }
+          })
+        });
+
+        softwareList.forEach(software => {
+          software.model.forEach(model => {
+            let newModel = {
+              name: model.name,
+              moduleType: model.modelType,
+              file: {
+                fileId: model.file == undefined ? '' : model.file.fileId,
+                fileName: model.file == undefined ? '' : model.file.fileName,
+                filePath: model.file == undefined ? '' : model.file.filePath
+              }
+            };
+            if (software.softwareName == 'Matlab') {
+              this.MatlabModelList.push(newModel);
+            } else if (software.softwareName == 'Fluent') {
+              this.FluentModelList.push(newModel);
+            } else if (software.softwareName == 'Multisim') {
+              this.MultisimModelList.push(newModel);
+            } else if (software.softwareName == 'Proteus') {
+              this.ProteusModelList.push(newModel);
+            } else if (software.softwareName == 'Automation') {
+              this.AutomationModelList.push(newModel);
+            } else if (software.softwareName == 'Labview') {
+              this.LabviewModelList.push(newModel);
             }
           })
         })
@@ -474,30 +512,30 @@
       },
       next() {
         let softwareList = this.$store.state.project.software;
-        softwareList.forEach(software=>{
+        softwareList.forEach(software => {
           software.model = [];
           if (software.softwareName == 'Matlab') {
-            this.MatlabModelList.forEach(model=> {
+            this.MatlabModelList.forEach(model => {
               software.model.push(model);
             })
           } else if (software.softwareName == 'Fluent') {
-            this.FluentModelList.forEach(model=> {
+            this.FluentModelList.forEach(model => {
               software.model.push(model);
             })
           } else if (software.softwareName == 'Multisim') {
-            this.MultisimModelList.forEach(model=> {
+            this.MultisimModelList.forEach(model => {
               software.model.push(model);
             })
           } else if (software.softwareName == 'Proteus') {
-            this.ProteusModelList.forEach(model=> {
+            this.ProteusModelList.forEach(model => {
               software.model.push(model);
             })
           } else if (software.softwareName == 'Automation') {
-            this.AutomationModelList.forEach(model=> {
+            this.AutomationModelList.forEach(model => {
               software.model.push(model);
             })
           } else if (software.softwareName == 'Labview') {
-            this.LabviewModelList.forEach(model=> {
+            this.LabviewModelList.forEach(model => {
               software.model.push(model);
             })
           }
@@ -527,7 +565,7 @@
       removeModel(index, modelList) {
         modelList.splice(index, 1);
       },
-      clearModelList () {
+      clearModelList() {
         this.MatlabModelList = [];
         this.FluentModelList = [];
         this.MultisimModelList = [];

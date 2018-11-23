@@ -380,7 +380,6 @@
         this.$router.replace({path: '/config/simModel'});
       },
       next() {
-        console.log(this.$store.state.project.software);
         let softwareList = this.$store.state.project.software;
         softwareList.forEach(software => {
           software.model.forEach(model => {
@@ -394,7 +393,6 @@
           })
         });
         this.$store.state.project.software = softwareList;
-        console.log(JSON.stringify(this.$store.state.project));
         this.$router.replace({path: '/config/processParam'});
       },
       addDdsRow() {
