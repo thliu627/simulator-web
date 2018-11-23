@@ -3,127 +3,343 @@
     <el-container>
       <el-header>
         <div class="simulation-model" style="border-bottom:1px solid #ccc;margin-top:25px;">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tabs v-model="activeName">
             <p>模型选择</p>
-            <el-tab-pane label="Matlab" name="Matlab">
-              <el-checkbox-group v-model="checkList">
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="Matlab控制模型">控制模型</el-checkbox>
-                  <el-upload
-                    style="float:left;margin-left:86px"
-                    multiple
-                    :action="uploadUrl"
-                    :limit="uploadLimit"
-                    name="file"
-                    v-show="checkList.indexOf('Matlab控制模型') > -1"
-                    :on-success="uploadSuccess"
-                    :file-list="MatlabControlFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="电机模型"></el-checkbox>
-                  <el-upload
-                    v-show="checkList.indexOf('电机模型') > -1"
-                    style="float:left;margin-left:86px"
-                    class="upload-motor"
-                    :on-remove="handleRemove"
-                    action=""
-                    multiple
-                    :limit="5"
-                    :file-list="motorFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="数学模型"></el-checkbox>
-                  <el-upload
-                    v-show="checkList.indexOf('数学模型') > -1"
-                    style="float:left;margin-left:86px"
-                    class="upload-math"
-                    :on-remove="handleRemove"
-                    action=""
-                    multiple
-                    :limit="5"
-                    :file-list="mathFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="电力电子组件模型"></el-checkbox>
-                  <el-upload
-                    v-show="checkList.indexOf('电力电子组件模型') > -1"
-                    style="float:left;margin-left:30px"
-                    class="upload-elec"
-                    :on-remove="handleRemove"
-                    action=""
-                    multiple
-                    :limit="5"
-                    :file-list="elecFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-              </el-checkbox-group>
+            <el-tab-pane v-if="softwareShowList.indexOf('Matlab') > -1" label="Matlab" name="Matlab">
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(MatlabModelList)">添加模型</el-button>
+              <el-table
+                :data="MatlabModelList"
+                ref="MatlabModelTable"
+                border
+                stripe
+                style="width: 100%"
+                size="mini">
+                <el-table-column
+                  prop="name"
+                  align="left"
+                  label="模型名称">
+                  <template slot-scope="scope">
+                    <el-input size="mini" v-model="scope.row.name" placeholder="请输入内容"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="modelType"
+                  align="left"
+                  label="模型类型">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                      <el-option label="控制模型" value="控制模型"></el-option>
+                      <el-option label="电机模型" value="电机模型"></el-option>
+                      <el-option label="数学模型" value="数学模型"></el-option>
+                      <el-option label="电力电子模型" value="电力电子模型"></el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="left"
+                  label="上传文件">
+                  <template slot-scope="scope">
+                    <el-upload
+                      style="height: 100%;"
+                      :action="uploadUrl"
+                      :limit="uploadLimit"
+                      name="file"
+                      :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
+                      <el-button size="small" type="primary">点击上传</el-button>
+                    </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  fixed="right"
+                  label="操作"
+                  width="80">
+                  <template slot-scope="scope">
+                    <el-button type="danger" size="mini" @click="removeModel(scope.$index, MatlabModelList)">删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </el-tab-pane>
-            <el-tab-pane label="Fluent" name="second">
-              <el-checkbox-group v-model="checkList2">
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="湍流模型"></el-checkbox>
-                  <el-upload
-                    v-show="checkList2.indexOf('湍流模型') > -1"
-                    style="float:left;margin-left:86px"
-                    class="upload-control"
-                    :on-remove="handleRemove"
-                    action=""
-                    multiple
-                    :limit="5"
-                    :file-list="turbulenceFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="流动和传热模型"></el-checkbox>
-                  <el-upload
-                    v-show="checkList2.indexOf('流动和传热模型') > -1"
-                    style="float:left;margin-left:44px"
-                    class="upload-motor"
-                    :on-remove="handleRemove"
-                    action=""
-                    multiple
-                    :limit="5"
-                    :file-list="flowFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="多相流模型"></el-checkbox>
-                  <el-upload
-                    v-show="checkList2.indexOf('多相流模型') > -1"
-                    style="float:left;margin-left:73px"
-                    class="upload-math"
-                    :on-remove="handleRemove"
-                    action=""
-                    multiple
-                    :limit="5"
-                    :file-list="multiphaseFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-                <div class="check-item">
-                  <el-checkbox style="float:left;line-height:30px;" label="动网格模型"></el-checkbox>
-                  <el-upload
-                    v-show="checkList2.indexOf('动网格模型') > -1"
-                    style="float:left;margin-left:73px"
-                    class="upload-elec"
-                    :on-remove="handleRemove"
-                    action=""
-                    multiple
-                    :limit="5"
-                    :file-list="griddingFileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                  </el-upload>
-                </div>
-              </el-checkbox-group>
+
+            <el-tab-pane v-if="softwareShowList.indexOf('Fluent') > -1" label="Fluent" name="Fluent">
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(FluentModelList)">添加模型</el-button>
+              <el-table
+                :data="FluentModelList"
+                ref="FluentModelTable"
+                border
+                stripe
+                style="width: 100%"
+                size="mini">
+                <el-table-column
+                  prop="name"
+                  align="left"
+                  label="模型名称">
+                  <template slot-scope="scope">
+                    <el-input size="mini" v-model="scope.row.name" placeholder="请输入内容"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="modelType"
+                  align="left"
+                  label="模型类型">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                      <el-option label="湍流模型" value="湍流模型"></el-option>
+                      <el-option label="流动和传热模型" value="流动和传热模型"></el-option>
+                      <el-option label="多相流模型" value="多相流模型"></el-option>
+                      <el-option label="动网格模型" value="动网格模型"></el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="left"
+                  label="上传文件">
+                  <template slot-scope="scope">
+                    <el-upload
+                      style="height: 100%;"
+                      :action="uploadUrl"
+                      :limit="uploadLimit"
+                      name="file"
+                      :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
+                      <el-button size="small" type="primary">点击上传</el-button>
+                    </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  fixed="right"
+                  label="操作"
+                  width="80">
+                  <template slot-scope="scope">
+                    <el-button type="danger" size="mini" @click="removeModel(scope.$index, FluentModelList)">删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+
+            <el-tab-pane v-if="softwareShowList.indexOf('Multisim') > -1" label="Multisim" name="Multisim">
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(MultisimModelList)">添加模型</el-button>
+              <el-table
+                :data="MultisimModelList"
+                ref="MultisimModelTable"
+                border
+                stripe
+                style="width: 100%"
+                size="mini">
+                <el-table-column
+                  prop="name"
+                  align="left"
+                  label="模型名称">
+                  <template slot-scope="scope">
+                    <el-input size="mini" v-model="scope.row.name" placeholder="请输入内容"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="modelType"
+                  align="left"
+                  label="模型类型">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                      <el-option label="控制模型" value="控制模型"></el-option>
+                      <el-option label="电机模型" value="电机模型"></el-option>
+                      <el-option label="数学模型" value="数学模型"></el-option>
+                      <el-option label="电力电子模型" value="电力电子模型"></el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="left"
+                  label="上传文件">
+                  <template slot-scope="scope">
+                    <el-upload
+                      style="height: 100%;"
+                      :action="uploadUrl"
+                      :limit="uploadLimit"
+                      name="file"
+                      :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
+                      <el-button size="small" type="primary">点击上传</el-button>
+                    </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  fixed="right"
+                  label="操作"
+                  width="80">
+                  <template slot-scope="scope">
+                    <el-button type="danger" size="mini" @click="removeModel(scope.$index, MultisimModelList)">删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+
+            <el-tab-pane v-if="softwareShowList.indexOf('Proteus') > -1" label="Proteus" name="Proteus">
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(ProteusModelList)">添加模型</el-button>
+              <el-table
+                :data="ProteusModelList"
+                ref="ProteusModelTable"
+                border
+                stripe
+                style="width: 100%"
+                size="mini">
+                <el-table-column
+                  prop="name"
+                  align="left"
+                  label="模型名称">
+                  <template slot-scope="scope">
+                    <el-input size="mini" v-model="scope.row.name" placeholder="请输入内容"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="modelType"
+                  align="left"
+                  label="模型类型">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                      <el-option label="控制模型" value="控制模型"></el-option>
+                      <el-option label="电机模型" value="电机模型"></el-option>
+                      <el-option label="数学模型" value="数学模型"></el-option>
+                      <el-option label="电力电子模型" value="电力电子模型"></el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="left"
+                  label="上传文件">
+                  <template slot-scope="scope">
+                    <el-upload
+                      style="height: 100%;"
+                      :action="uploadUrl"
+                      :limit="uploadLimit"
+                      name="file"
+                      :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
+                      <el-button size="small" type="primary">点击上传</el-button>
+                    </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  fixed="right"
+                  label="操作"
+                  width="80">
+                  <template slot-scope="scope">
+                    <el-button type="danger" size="mini" @click="removeModel(scope.$index, ProteusModelList)">删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+
+            <el-tab-pane v-if="softwareShowList.indexOf('Automation') > -1" label="Automation" name="Automation">
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(AutomationModelList)">添加模型</el-button>
+              <el-table
+                :data="AutomationModelList"
+                ref="AutomationModelTable"
+                border
+                stripe
+                style="width: 100%"
+                size="mini">
+                <el-table-column
+                  prop="name"
+                  align="left"
+                  label="模型名称">
+                  <template slot-scope="scope">
+                    <el-input size="mini" v-model="scope.row.name" placeholder="请输入内容"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="modelType"
+                  align="left"
+                  label="模型类型">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                      <el-option label="控制模型" value="控制模型"></el-option>
+                      <el-option label="电机模型" value="电机模型"></el-option>
+                      <el-option label="数学模型" value="数学模型"></el-option>
+                      <el-option label="电力电子模型" value="电力电子模型"></el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="left"
+                  label="上传文件">
+                  <template slot-scope="scope">
+                    <el-upload
+                      style="height: 100%;"
+                      :action="uploadUrl"
+                      :limit="uploadLimit"
+                      name="file"
+                      :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
+                      <el-button size="small" type="primary">点击上传</el-button>
+                    </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  fixed="right"
+                  label="操作"
+                  width="80">
+                  <template slot-scope="scope">
+                    <el-button type="danger" size="mini" @click="removeModel(scope.$index, AutomationModelList)">删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+
+
+            <el-tab-pane v-if="softwareShowList.indexOf('Labview') > -1" label="Labview" name="Labview">
+              <el-button style="float: left;margin-bottom: 8px" size="small" type="primary" @click="addModel(LabviewModelList)">添加模型</el-button>
+              <el-table
+                :data="LabviewModelList"
+                ref="LabviewModelTable"
+                border
+                stripe
+                style="width: 100%"
+                size="mini">
+                <el-table-column
+                  prop="name"
+                  align="left"
+                  label="模型名称">
+                  <template slot-scope="scope">
+                    <el-input size="mini" v-model="scope.row.name" placeholder="请输入内容"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="modelType"
+                  align="left"
+                  label="模型类型">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                      <el-option label="控制模型" value="控制模型"></el-option>
+                      <el-option label="电机模型" value="电机模型"></el-option>
+                      <el-option label="数学模型" value="数学模型"></el-option>
+                      <el-option label="电力电子模型" value="电力电子模型"></el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="left"
+                  label="上传文件">
+                  <template slot-scope="scope">
+                    <el-upload
+                      style="height: 100%;"
+                      :action="uploadUrl"
+                      :limit="uploadLimit"
+                      name="file"
+                      :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
+                      <el-button size="small" type="primary">点击上传</el-button>
+                    </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  fixed="right"
+                  label="操作"
+                  width="80">
+                  <template slot-scope="scope">
+                    <el-button type="danger" size="mini" @click="removeModel(scope.$index, LabviewModelList)">删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -146,40 +362,180 @@
     name: "SimulationSoftware",
     data() {
       return {
-        activeName: 'Matlab',
-        checkList: [],
-        controlFileList: [],
-        motorFileList: [],
-        mathFileList: [],
-        elecFileList: [],
-        checkList2: [],
-        turbulenceFileList: [],
-        flowFileList: [],
-        multiphaseFileList: [],
-        griddingFileList: [],
-        fileList: [],
-        uploadUrl: 'http://localhost:9001/file/upload',
-        uploadLimit: 5,
-        MatlabControlFileList: []
+        activeName: '',
+        softwareShowList: [],
+
+        softwareSequence: [
+          "Matlab",
+          "Fluent",
+          "Multisim",
+          "Proteus",
+          "Automation",
+          "Labview",
+        ],
+
+        MatlabModelList: [
+          {
+            name: '',
+            moduleType: '',
+            file: {
+              fileId: '',
+              fileName: '',
+              filePath: ''
+            }
+          }
+        ],
+        FluentModelList: [
+          {
+            name: '',
+            moduleType: '',
+            file: {
+              fileId: '',
+              fileName: '',
+              filePath: ''
+            }
+          }
+        ],
+        MultisimModelList: [
+          {
+            name: '',
+            moduleType: '',
+            file: {
+              fileId: '',
+              fileName: '',
+              filePath: ''
+            }
+          }
+        ],
+        ProteusModelList: [
+          {
+            name: '',
+            moduleType: '',
+            file: {
+              fileId: '',
+              fileName: '',
+              filePath: ''
+            }
+          }
+        ],
+        AutomationModelList: [
+          {
+            name: '',
+            moduleType: '',
+            file: {
+              fileId: '',
+              fileName: '',
+              filePath: ''
+            }
+          }
+        ],
+        LabviewModelList: [
+          {
+            name: '',
+            moduleType: '',
+            file: {
+              fileId: '',
+              fileName: '',
+              filePath: ''
+            }
+          }
+        ],
+        uploadUrl: 'http://192.168.4.108:9001/file/upload',
+        uploadLimit: 1,
       }
     },
+    mounted: function() {
+      this.initData();
+    },
     methods: {
-      handleClick(tab, event) {
-        console.log(tab, event);
-      },
-      handleRemove(file, fileList) {
-        console.log(file, fileList);
+      initData () {
+        this.clearModelList();
+
+        let softwareList = this.$store.state.project.software;
+        softwareList.forEach(software=> {
+          console.log(software);
+          if (this.activeName == 0) {
+            this.activeName = software.softwareName;
+          }
+          this.softwareShowList.push(software.softwareName);
+        });
+
+        this.softwareSequence.forEach(softwareName=>{
+          this.softwareShowList.forEach(software=> {
+            if (software.softwareName == softwareName) {
+              this.activeName = softwareName;
+              return;
+            }
+          })
+        })
       },
       previous() {
         this.$router.replace({path: '/config/simSoftware'});
       },
       next() {
-        this.$router.replace({path: '/config/modelParam'});
+        let softwareList = this.$store.state.project.software;
+        softwareList.forEach(software=>{
+          software.model = [];
+          if (software.softwareName == 'Matlab') {
+            this.MatlabModelList.forEach(model=> {
+              software.model.push(model);
+            })
+          } else if (software.softwareName == 'Fluent') {
+            this.FluentModelList.forEach(model=> {
+              software.model.push(model);
+            })
+          } else if (software.softwareName == 'Multisim') {
+            this.MultisimModelList.forEach(model=> {
+              software.model.push(model);
+            })
+          } else if (software.softwareName == 'Proteus') {
+            this.ProteusModelList.forEach(model=> {
+              software.model.push(model);
+            })
+          } else if (software.softwareName == 'Automation') {
+            this.AutomationModelList.forEach(model=> {
+              software.model.push(model);
+            })
+          } else if (software.softwareName == 'Labview') {
+            this.LabviewModelList.forEach(model=> {
+              software.model.push(model);
+            })
+          }
+        })
+        this.$store.state.project.software = softwareList;
+        console.log(this.$store.state.project.software);
+        console.log(JSON.stringify(softwareList));
+        console.log(JSON.stringify(this.MatlabModelList));
       },
-      uploadSuccess(resp, file, fileList) {
-        console.log(JSON.stringify(resp))
-        console.log("file="+JSON.stringify(file));
-        console.log("fileList="+JSON.stringify(fileList));
+      uploadSuccess(resp, file, fileList, row) {
+        if (file != undefined) {
+          row.file.fileId = resp.id;
+          row.file.fileName = resp.name;
+          row.file.filePath = resp.path;
+        }
+      },
+      addModel(modelList) {
+        let model = {
+          name: '',
+          modelType: '',
+          file: {
+            fileId: '',
+            fileName: '',
+            filePath: ''
+          }
+        };
+        modelList.push(model);
+      },
+      removeModel(index, modelList) {
+        modelList.splice(index, 1);
+      },
+      clearModelList () {
+        this.MatlabModelList = [];
+        this.FluentModelList = [];
+        this.MultisimModelList = [];
+        this.ProteusModelList = [];
+        this.AutomationModelList = [];
+        this.LabviewModelList = [];
       }
     }
   }
