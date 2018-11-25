@@ -31,6 +31,7 @@ Vue.prototype.isNotNullORBlank = isNotNullORBlank;
 
 router.beforeEach((to, from, next) => {
     // console.log(JSON.stringify(store.state.project));
+    console.log(JSON.stringify(store.state.result));
     if (store.state.user.state == 'login') {
       next();
       return;

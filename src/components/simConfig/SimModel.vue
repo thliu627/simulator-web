@@ -42,6 +42,7 @@
                   label="上传文件">
                   <template slot-scope="scope">
                     <el-upload
+                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
@@ -388,7 +389,7 @@
         MatlabModelList: [
           {
             name: '',
-            moduleType: '',
+            modelType: '',
             file: {
               fileId: '',
               fileName: '',
@@ -399,7 +400,7 @@
         FluentModelList: [
           {
             name: '',
-            moduleType: '',
+            modelType: '',
             file: {
               fileId: '',
               fileName: '',
@@ -410,7 +411,7 @@
         MultisimModelList: [
           {
             name: '',
-            moduleType: '',
+            modelType: '',
             file: {
               fileId: '',
               fileName: '',
@@ -421,7 +422,7 @@
         ProteusModelList: [
           {
             name: '',
-            moduleType: '',
+            modelType: '',
             file: {
               fileId: '',
               fileName: '',
@@ -432,7 +433,7 @@
         AutomationModelList: [
           {
             name: '',
-            moduleType: '',
+            modelType: '',
             file: {
               fileId: '',
               fileName: '',
@@ -443,7 +444,7 @@
         LabviewModelList: [
           {
             name: '',
-            moduleType: '',
+            modelType: '',
             file: {
               fileId: '',
               fileName: '',
@@ -451,7 +452,7 @@
             }
           }
         ],
-        uploadUrl: 'http://192.168.4.108:9001/file/upload',
+        uploadUrl: 'http://localhost:9001/file/upload',
         uploadLimit: 1,
       }
     },
@@ -480,31 +481,24 @@
         });
 
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            let newModel = {
-              name: model.name,
-              moduleType: model.modelType,
-              file: {
-                fileId: model.file == undefined ? '' : model.file.fileId,
-                fileName: model.file == undefined ? '' : model.file.fileName,
-                filePath: model.file == undefined ? '' : model.file.filePath
+          if (software.model != undefined) {
+            software.model.forEach(model => {
+              if (software.softwareName == 'Matlab') {
+                this.MatlabModelList.push(this.getNewModel(model));
+              } else if (software.softwareName == 'Fluent') {
+                this.FluentModelList.push(this.getNewModel(model));
+              } else if (software.softwareName == 'Multisim') {
+                this.MultisimModelList.push(this.getNewModel(model));
+              } else if (software.softwareName == 'Proteus') {
+                this.ProteusModelList.push(this.getNewModel(model));
+              } else if (software.softwareName == 'Automation') {
+                this.AutomationModelList.push(this.getNewModel(model));
+              } else if (software.softwareName == 'Labview') {
+                this.LabviewModelList.push(this.getNewModel(model));
               }
-            };
-            if (software.softwareName == 'Matlab') {
-              this.MatlabModelList.push(newModel);
-            } else if (software.softwareName == 'Fluent') {
-              this.FluentModelList.push(newModel);
-            } else if (software.softwareName == 'Multisim') {
-              this.MultisimModelList.push(newModel);
-            } else if (software.softwareName == 'Proteus') {
-              this.ProteusModelList.push(newModel);
-            } else if (software.softwareName == 'Automation') {
-              this.AutomationModelList.push(newModel);
-            } else if (software.softwareName == 'Labview') {
-              this.LabviewModelList.push(newModel);
-            }
-          })
-        })
+            });
+          }
+        });
       },
       previous() {
         this.$router.replace({path: '/config/simSoftware'});
@@ -538,9 +532,21 @@
               software.model.push(model);
             })
           }
-        })
+        });
         this.$store.state.project.software = softwareList;
         this.$router.replace({path: '/config/modelParam'});
+      },
+      getNewModel (model) {
+        let newModel = {
+          modelType: model.modelType,
+          name: model.name,
+          file: {
+            fileId: model.file.fileId,
+            fileName: model.file.fileName,
+            filePath: model.file.filePath
+          }
+        };
+        return newModel;
       },
       uploadSuccess(resp, file, fileList, row) {
         if (file != undefined) {

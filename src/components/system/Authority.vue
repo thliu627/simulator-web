@@ -306,7 +306,7 @@
           console.log(valid);
           if (valid) {
             if (this.dialogOperation == 'addAuthority') {
-              this.postRequest("sso-service", "/authority?applicationId=" + this.currentApplicationId, this.authority).then(resp => {
+              this.postRequest("sso-service", "/authority?applicationIrespd=" + this.currentApplicationId, this.authority).then(resp => {
                 _this.formLoading = false;
                 if (resp.code == '000000') {
                   _this.$message({type: 'success', message: resp.msg});

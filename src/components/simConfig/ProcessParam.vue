@@ -200,6 +200,7 @@
             if (software.softwareName == this.current.softwareName &&
               model.name == this.current.modelName &&
               model.modelType == this.current.modelType) {
+              console.log(model.subjectDDS);
               if (model.subjectDDS != undefined) {
                 this.subjectDdsList = model.subjectDDS;
               }
@@ -227,7 +228,10 @@
           })
         });
         this.$store.state.project.software = softwareList;
-        console.log(this.$store.state.project.software);
+        this.postRequest("sso-service", "/project?project=" + encodeURIComponent(JSON.stringify(this.$store.state.project))).then(resp => {
+          console.log(JSON.stringify(resp.data));
+        });
+        this.$router.replace({path: '/manage/listener'});
       },
       addSubjectDdsRow() {
         let subjectDds = {

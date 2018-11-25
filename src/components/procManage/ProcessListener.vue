@@ -7,6 +7,8 @@
                     </div>
                     <div class="progress-bar">
                         <span class="progress"><i ref="progressBar"></i></span>
+                        <!--<button size="small" @click="userControl('start')" type="primary">开始</button>-->
+                        <!--<button size="small" @click="userControl('pause')" type="primary">暂停</button>-->
                         <span class="start" ref="start" @click="userControl('start')">开始</span>
                         <span class="pause" ref="pause" @click="userControl('pause')">暂停</span>
                     </div>
@@ -14,8 +16,8 @@
             </el-main>
             <el-footer class="fixed-menu">
                 <el-row type="flex" justify="end">
-                    <el-button type="primary">上一步</el-button>
-                    <el-button type="primary">查看结果</el-button>
+                    <!--<el-button type="primary">上一步</el-button>-->
+                    <el-button @click="next" :disabled="disabled" type="primary">查看结果</el-button>
                     <el-button type="primary">返回首页</el-button>
                 </el-row>
             </el-footer>
@@ -43,14 +45,18 @@ export default {
                 "任务4编译中……",
                 "编译完成！"
             ],
-            operateInter:null
+            operateInter:null,
+            disabled: true
         }
+    },
+    mounted:function () {
+      console.log(JSON.stringify(this.$store.state.project));
     },
     methods:{
         userControl(type){
             if(type == "start"){
                 if(this.control){
-                    if(this.loadText.lenfth*10 === this.progressNum){
+                    if(this.loadText.length*10 === this.progressNum){
                         return ;
                     }
                     this.control = false;
@@ -67,18 +73,24 @@ export default {
                         this.thisIndex+=1;
                         this.$refs.scrollContent.appendChild(p);
                         this.$refs.progressBar.style.width = this.progressNum+"%";
+                        if (this.progressNum == 100) {
+                          this.disabled = false;
+                        }
                         rootElement.scrollTop = rootElement.scrollHeight;
                     },1000);
                 }else{
                     return ;
                 }
             }else{
-                if(this.loadText.lenfth*10 === this.progressNum){
+                if(this.loadText.length*10 === this.progressNum){
                     return ;
                 }
                 this.control = true;
                 clearInterval(this.operateInter);
             }
+        },
+        next() {
+          this.$router.replace({path: '/manage/result'});
         }
     }
 }
