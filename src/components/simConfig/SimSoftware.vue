@@ -89,7 +89,7 @@
         <el-row type="flex" justify="end">
           <el-button @click="previous" type="primary">上一步</el-button>
           <el-button @click="next" type="primary">下一步</el-button>
-          <el-button @click="home" type="primary">返回首页</el-button>
+          <el-button type="primary">返回首页</el-button>
         </el-row>
       </el-footer>
     </el-container>
@@ -114,20 +114,27 @@
     },
     methods: {
       initData() {
-        let project = this.$store.state.project;
-        if (project.simulatorType != '') {
-          this.radio = project.simulatorType;
-          if (project.simulatorType == '独立仿真') {
-            this.independent();
-            project.software.forEach(software=> {
-              this.radioSoftWare = software.softwareName;
-            });
-          } else if (project.simulatorType == '联合仿真') {
-            this.unite();
-            project.software.forEach(software=> {
-              this.uniteDataList.push(software.softwareName);
-            });
-          }
+        let localProject = this.$store.state.project;
+        if (localProject.projectId != undefined && localProject.projectId != '') {
+          this.getRequest("sso-service", '/project/'+ localProject.projectId).then(resp => {
+            let project = resp.data;
+            if (project != null) {
+              if (project.simulatorType != '') {
+                this.radio = project.simulatorType;
+                if (project.simulatorType == '独立仿真') {
+                  this.independent();
+                  project.softwareList.forEach(software=> {
+                    this.radioSoftWare = software.name;
+                  });
+                } else if (project.simulatorType == '联合仿真') {
+                  this.unite();
+                  project.softwareList.forEach(software=> {
+                    this.uniteDataList.push(software.name);
+                  });
+                }
+              }
+            }
+          });
         }
       },
       independent() {
@@ -144,49 +151,22 @@
         this.$router.replace({path: '/project/new'});
       },
       next() {
-        let project = this.$store.state.project;
-        project.simulatorType = this.radio;
-
-        let softwareNames = [];
+        let localProject = this.$store.state.project;
+        let softwareNameList = [];
+        let _this = this;
         if (this.radio == '独立仿真') {
-          softwareNames.push(this.radioSoftWare);
-        } else if (this.radio == '联合仿真') {
-          this.uniteDataList.forEach(software=> {
-            softwareNames.push(software);
-          });
+          softwareNameList.push(this.radioSoftWare)
+        } else {
+          softwareNameList = this.uniteDataList;
         }
-
-        let newSoftwareList = [];
-        project.software.forEach(software=> {
-          let exists = false;
-          softwareNames.forEach(name=>{
-            if (name == software.softwareName) {
-              exists = true;
-            }
-          });
-          if (exists) {
-            newSoftwareList.push(software);
+        this.putRequestJSON("sso-service", "/software?projectId=" + localProject.projectId + "&simulatorType=" + this.radio, softwareNameList).then(resp => {
+          _this.formLoading = false;
+          if (resp.code == '000000') {
+            _this.$store.state.project = resp.data;
+            _this.$message({type: 'success', message: resp.msg});
+            this.$router.replace({path: '/config/simModel'});
           }
-        });
-        softwareNames.forEach(name=>{
-          let exists = false;
-          project.software.forEach(software=> {
-            if (name == software.softwareName) {
-              exists = true;
-            }
-          });
-          if (!exists) {
-            let newSoftware = {softwareName: name};
-            newSoftwareList.push(newSoftware);
-          }
-        });
-
-        project.software = newSoftwareList;
-        this.$store.state.project = project;
-        this.$router.replace({path: '/config/simModel'});
-      },
-      home() {
-        console.log(this.independentDataList);
+        })
       }
     }
   }

@@ -12,12 +12,12 @@
                         </el-col>
                         <el-col :span="15">
                             <div class="grid-content">
-                                <el-input v-model="projectName" placeholder="请输入工程名称"></el-input>
+                                <el-input v-model="project.name" placeholder="请输入工程名称"></el-input>
                             </div>
                         </el-col>
                         <el-col :span="5">
                             <div class="grid-content">
-                                <el-button style="margin-left:25px" type="primary">确定</el-button>
+                                <el-button @click="next()" style="margin-left:25px" type="primary">确定</el-button>
                             </div>
                         </el-col>
                     </el-row>
@@ -39,13 +39,53 @@ export default {
     name: "NewProject",
     data(){
         return {
-            projectName: this.$store.state.project.name
+            project: {
+              projectId: this.$store.state.project.projectId,
+              name: this.$store.state.project.name
+            }
         }
+    },
+    mounted: function () {
+      let localProject = this.$store.state.project;
+      console.log(localProject.projectId);
+      if (localProject.projectId == undefined || localProject.projectId == '') {
+        return;
+      }
+      let _this = this;
+      this.getRequest("sso-service", "/project/" + localProject.projectId).then(resp => {
+        _this.project.projectId = resp.data.projectId;
+        _this.project.name = resp.data.name;
+      })
     },
     methods: {
       next() {
-        this.$store.state.project.name = this.projectName;
-        this.$router.replace({path: '/config/simSoftware'});
+        let project = this.$store.state.project;
+        let _this = this;
+        if (this.name == '') {
+          this.$message({type: 'error', message: '请输入工程名'});
+        };
+        if (project.projectId == '') {
+          this.postRequest("sso-service", "/project", this.project).then(resp => {
+            _this.formLoading = false;
+            if (resp.code == '000000') {
+              _this.$store.state.project.projectId = resp.data.projectId;
+              _this.$store.state.project.name = resp.data.name;
+              _this.$message({type: 'success', message: resp.msg});
+              this.$router.replace({path: '/config/simSoftware'});
+            }
+          })
+        } else {
+          this.putRequest("sso-service", "/project", this.project).then(resp => {
+            _this.formLoading = false;
+            if (resp.code == '000000') {
+              _this.$store.state.project.projectId = resp.data.projectId;
+              _this.$store.state.project.name = resp.data.name;
+              _this.$message({type: 'success', message: resp.msg});
+              this.$router.replace({path: '/config/simSoftware'});
+            }
+          })
+        }
+
       }
     }
 }

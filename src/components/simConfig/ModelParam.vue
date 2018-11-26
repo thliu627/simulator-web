@@ -100,11 +100,13 @@
               </template>
             </el-table-column>
             <el-table-column
-              prop="QoS"
+              prop="qos"
               align="center"
-              label="QoS">
+              label="qos">
               <template slot-scope="scope">
-                <el-input size="mini" v-model="scope.row.QoS" disabled placeholder="请输入内容"></el-input>
+                <el-select v-model="scope.row.qos" placeholder="请选择" size="mini">
+                  <el-option label="默认" value="默认"></el-option>
+                </el-select>
               </template>
             </el-table-column>
             <el-table-column
@@ -268,8 +270,8 @@
         outputParamShow: false,
         modelList: [
           {
-            //隐藏字段，用于判断软件不同模型类别允许相同模型名
-            modelType: '',
+            modelId: '',
+            type: '',
             softwareName: '',
             modelName: '',
             dataSource: ''
@@ -280,7 +282,7 @@
             domain: '',
             role: '',
             topicName: '',
-            QoS: ''
+            qos: ''
           }
         ],
         inputParamList: [
@@ -299,9 +301,10 @@
           }
         ],
         current: {
+          modelId: '',
           softwareName: '',
           modelName: '',
-          modelType: ''
+          type: ''
         }
       }
     },
@@ -310,35 +313,41 @@
       this.ddsList = [];
       this.inputParamList = [];
       this.outputParamList = [];
-      let softwareList = this.$store.state.project.software;
-      softwareList.forEach(software => {
-        software.model.forEach(model => {
-          let modelRow = {
-            modelType: model.modelType,
-            softwareName: software.softwareName,
-            modelName: model.name,
-            dataSource: model.dataSource
-          }
-          this.modelList.push(modelRow);
-        })
-      });
+      let localProject = this.$store.state.project;
+      if (localProject.projectId != undefined && localProject.projectId != '') {
+        this.getRequest("sso-service", '/project/' + localProject.projectId).then(resp => {
+          this.$store.state.project = resp.data;
+          let softwareList = this.$store.state.project.softwareList;
+          softwareList.forEach(software => {
+            software.modelList.forEach(model => {
+              let modelRow = {
+                type: model.type,
+                modelId: model.modelId,
+                softwareName: software.name,
+                modelName: model.name,
+                dataSource: model.dataSource
+              };
+              this.modelList.push(modelRow);
+            })
+          });
+        });
+      }
     },
     methods: {
       handleDdsDetail(index, row) {
         //更新当前选取状态 用于区分哪个软件 哪个模型 哪个模型类别
+        this.current.modelId = row.modelId;
         this.current.modelName = row.modelName;
-        this.current.modelType = row.modelType;
+        this.current.type = row.type;
         this.current.softwareName = row.softwareName;
         //清空当前DDS列表并渲染
-        let softwareList = this.$store.state.project.software;
+        let softwareList = this.$store.state.project.softwareList;
         this.ddsList = [];
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
-              if (model.modelDDS != undefined) {
-                this.ddsList = model.modelDDS;
+          software.modelList.forEach(model => {
+            if (model.modelId == this.current.modelId) {
+              if (model.modelDDSList != undefined) {
+                this.ddsList = model.modelDDSList;
               }
             }
           })
@@ -349,24 +358,23 @@
       },
       handleParamDetail(index, row) {
         //更新当前选取状态 用于区分哪个软件 哪个模型 哪个模型类别
+        this.current.modelId = row.modelId;
         this.current.modelName = row.modelName;
-        this.current.modelType = row.modelType;
+        this.current.type = row.type;
         this.current.softwareName = row.softwareName;
         //清空当前参数列表并渲染
-        let softwareList = this.$store.state.project.software;
+        let softwareList = this.$store.state.project.softwareList;
         this.inputParamList = [];
         this.outputParamList = [];
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
-              if (model.param != undefined) {
-                if (model.param.inputParam != undefined) {
-                  this.inputParamList = model.param.inputParam;
+          software.modelList.forEach(model => {
+            if (model.modelId == this.current.modelId) {
+              if (model != undefined) {
+                if (model.inputParamList != undefined) {
+                  this.inputParamList = model.inputParamList;
                 }
-                if (model.param.outputParam != undefined) {
-                  this.outputParamList = model.param.outputParam;
+                if (model.outputParamList != undefined) {
+                  this.outputParamList = model.outputParamList;
                 }
               }
             }
@@ -380,27 +388,34 @@
         this.$router.replace({path: '/config/simModel'});
       },
       next() {
-        let softwareList = this.$store.state.project.software;
+        let _this = this;
+        let localProject = this.$store.state.project;
+        let softwareList = this.$store.state.project.softwareList;
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            this.modelList.forEach(currentMode=>{
-              if (software.softwareName == currentMode.softwareName &&
-                model.name == currentMode.modelName &&
-                model.modelType == currentMode.modelType) {
+          software.modelList.forEach(model => {
+            this.modelList.forEach(currentMode => {
+              if (model.modelId == currentMode.modelId) {
                 model.dataSource = currentMode.dataSource;
               }
             })
           })
         });
-        this.$store.state.project.software = softwareList;
-        this.$router.replace({path: '/config/processParam'});
+        setTimeout((
+          this.putRequestJSON("sso-service", "/model/paramAndDds?projectId=" + localProject.projectId, softwareList).then(resp => {
+            _this.formLoading = false;
+            if (resp.code == '000000') {
+              _this.$store.state.project = resp.data;
+              _this.$message({type: 'success', message: resp.msg});
+              this.$router.replace({path: '/config/processParam'});
+            }
+          }),50));
       },
       addDdsRow() {
         let dds = {
           domain: '',
           role: '订阅者',
           topicName: '',
-          QoS: '默认'
+          qos: '默认'
         };
         if (this.ddsList == undefined) {
           this.ddsList = [];
@@ -434,68 +449,45 @@
         rowList.splice(index, 1);
       },
       saveDds() {
-        let softwareList = this.$store.state.project.software;
+        let softwareList = this.$store.state.project.softwareList;
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
+          software.modelList.forEach(model => {
+            if (model.modelId == this.current.modelId) {
               if (model != undefined) {
-                model.modelDDS = this.ddsList;
+                model.modelDDSList = this.ddsList;
               }
             }
           })
         });
-        this.$store.state.project.software = softwareList;
+        this.$store.state.project.softwareList = softwareList;
         this.successMessage();
       },
       saveInputParam() {
-        let softwareList = this.$store.state.project.software;
+        let softwareList = this.$store.state.project.softwareList;
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
-              //为了不破坏输出参数原数据
+          software.modelList.forEach(model => {
+            if (model.modelId == this.current.modelId) {
               if (model != undefined) {
-                let originOutputParam = [];
-                if (model.param != undefined && model.param.outputParam != undefined) {
-                  originOutputParam = model.param.outputParam;
-                }
-                model.param = {
-                  inputParam: this.inputParamList,
-                  outputParam: originOutputParam
-                }
-                console.log(model);
+                model.inputParamList = this.inputParamList;
               }
             }
           })
         });
-        this.$store.state.project.software = softwareList;
+        this.$store.state.project.softwareList = softwareList;
         this.successMessage();
       },
       saveOutputParam() {
-        let softwareList = this.$store.state.project.software;
+        let softwareList = this.$store.state.project.softwareList;
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
-              //为了不破坏输入参数原数据
+          software.modelList.forEach(model => {
+            if (model.modelId == this.current.modelId) {
               if (model != undefined) {
-                let originInputParam = [];
-                if (model.param != undefined && model.param.inputParam != undefined) {
-                  originInputParam = model.param.inputParam;
-                }
-                model.param = {
-                  inputParam: originInputParam,
-                  outputParam: this.outputParamList
-                }
+                model.outputParamList = this.outputParamList;
               }
             }
           })
         });
-        this.$store.state.project.software = softwareList;
+        this.$store.state.project.softwareList = softwareList;
         this.successMessage();
       },
       successMessage() {

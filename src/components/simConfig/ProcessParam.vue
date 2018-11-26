@@ -69,7 +69,7 @@
             </el-button>
           </div>
           <el-table
-            :data="subjectDdsList"
+            :data="subjectDDSList"
             border
             stripe
             size="mini"
@@ -102,11 +102,13 @@
               </template>
             </el-table-column>
             <el-table-column
-              prop="QoS"
+              prop="qos"
               align="center"
-              label="Qos">
+              label="qos">
               <template slot-scope="scope">
-                <el-input size="mini" v-model="scope.row.QoS" placeholder="请输入内容"></el-input>
+                <el-select v-model="scope.row.qos" placeholder="请选择" size="mini">
+                  <el-option label="默认" value="默认"></el-option>
+                </el-select>
               </template>
             </el-table-column>
             <el-table-column
@@ -116,7 +118,7 @@
                 <el-button
                   size="mini"
                   type="danger"
-                  @click="removeRow(scope.$index, subjectDdsList)">删除
+                  @click="removeRow(scope.$index, subjectDDSList)">删除
                 </el-button>
               </template>
             </el-table-column>
@@ -140,15 +142,15 @@
     data() {
       return {
         subjectDdsShow: false,
-        subjectDdsList: [{
+        subjectDDSList: [{
           //域
           domain: '',
           //角色
           role: '',
           //主题名称
           topicName: '',
-          //QoS
-          QoS: ''
+          //qos
+          qos: ''
         }
         ],
         modelList: [{
@@ -162,6 +164,7 @@
         }
         ],
         current: {
+          modelId: '',
           softwareName: '',
           modelName: '',
           modelType: ''
@@ -170,39 +173,46 @@
     },
     mounted() {
       this.modelList = [];
-      this.subjectDdsList = [];
-      let softwareList = this.$store.state.project.software;
-      softwareList.forEach(software => {
-        software.model.forEach(model => {
-          let modelRow = {
-            modelType: model.modelType,
-            softwareName: software.softwareName,
-            modelName: model.name,
-            subjectType: model.subjectType,
-            level: model.level,
-            step: model.step
-          }
-          this.modelList.push(modelRow);
-        })
-      });
+      this.subjectDDSList = [];
+      let localProject = this.$store.state.project;
+      if (localProject.projectId != undefined && localProject.projectId != '') {
+        this.getRequest("sso-service", '/project/' + localProject.projectId).then(resp => {
+          this.$store.state.project = resp.data;
+          let softwareList = this.$store.state.project.softwareList;
+          softwareList.forEach(software => {
+            software.modelList.forEach(model => {
+              let modelRow = {
+                modelId: model.modelId,
+                modelType: model.type,
+                softwareName: software.name,
+                modelName: model.name,
+                subjectType: model.subjectType,
+                level: model.level,
+                step: model.step
+              };
+              this.modelList.push(modelRow);
+            })
+          });
+        });
+
+      }
     },
     methods: {
       handleDdsDetail(index, row) {
         //更新当前选取状态 用于区分哪个软件 哪个模型 哪个模型类别
+        this.current.modelId = row.modelId;
         this.current.modelName = row.modelName;
         this.current.modelType = row.modelType;
         this.current.softwareName = row.softwareName;
         //清空当前DDS列表并渲染
-        let softwareList = this.$store.state.project.software;
-        this.subjectDdsList = [];
+        let softwareList = this.$store.state.project.softwareList;
+        this.subjectDDSList = [];
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
+          software.modelList.forEach(model => {
+            if (model.modelId == this.current.modelId) {
               console.log(model.subjectDDS);
-              if (model.subjectDDS != undefined) {
-                this.subjectDdsList = model.subjectDDS;
+              if (model.subjectDDSList != undefined) {
+                this.subjectDDSList = model.subjectDDSList;
               }
             }
           })
@@ -213,13 +223,14 @@
         this.$router.replace({path: '/config/modelParam'});
       },
       next() {
-        let softwareList = this.$store.state.project.software;
+        let _this = this;
+        let localProject = this.$store.state.project;
+        console.log(this.$store.state.project.softwareList);
+        let softwareList = this.$store.state.project.softwareList;
         softwareList.forEach(software => {
-          software.model.forEach(model => {
+          software.modelList.forEach(model => {
             this.modelList.forEach(currentMode => {
-              if (software.softwareName == currentMode.softwareName &&
-                model.name == currentMode.modelName &&
-                model.modelType == currentMode.modelType) {
+              if (model.modelId == currentMode.modelId) {
                 model.subjectType = currentMode.subjectType;
                 model.level = currentMode.level;
                 model.step = currentMode.step;
@@ -227,38 +238,48 @@
             })
           })
         });
-        this.$store.state.project.software = softwareList;
-        this.postRequest("sso-service", "/project?project=" + encodeURIComponent(JSON.stringify(this.$store.state.project))).then(resp => {
-          console.log(JSON.stringify(resp.data));
-        });
-        this.$router.replace({path: '/manage/listener'});
+        this.$store.state.project.softwareList = softwareList;
+        setTimeout((
+          this.putRequestJSON("sso-service", "/model/subjectDds?projectId=" + localProject.projectId, softwareList).then(resp => {
+            _this.formLoading = false;
+            if (resp.code == '000000') {
+              _this.$store.state.project = resp.data;
+              _this.$message({type: 'success', message: resp.msg});
+              this.$confirm('即将进行仿真模拟, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$router.replace({path: '/manage/listener'});
+              }).catch(() => {
+              });
+            }
+          }), 50));
       },
       addSubjectDdsRow() {
         let subjectDds = {
           domain: '',
           role: '订阅者',
           topicName: '',
-          QoS: '默认'
+          qos: '默认'
         };
-        this.subjectDdsList.push(subjectDds);
+        this.subjectDDSList.push(subjectDds);
       },
       removeRow(index, rowList) {
         rowList.splice(index, 1);
       },
       saveSubjectDds() {
-        let softwareList = this.$store.state.project.software;
+        let softwareList = this.$store.state.project.softwareList;
         softwareList.forEach(software => {
-          software.model.forEach(model => {
-            if (software.softwareName == this.current.softwareName &&
-              model.name == this.current.modelName &&
-              model.modelType == this.current.modelType) {
+          software.modelList.forEach(model => {
+            if (model.modelId == this.current.modelId) {
               if (model != undefined) {
-                model.subjectDDS = this.subjectDdsList;
+                model.subjectDDSList = this.subjectDDSList;
               }
             }
           })
         });
-        this.$store.state.project.software = softwareList;
+        this.$store.state.project.softwareList = softwareList;
         this.successMessage();
       },
       successMessage() {

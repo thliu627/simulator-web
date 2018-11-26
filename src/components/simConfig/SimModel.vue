@@ -25,11 +25,11 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="modelType"
+                  prop="type"
                   align="left"
                   label="模型类型">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                    <el-select v-model="scope.row.type" placeholder="请选择" size="mini">
                       <el-option label="控制模型" value="控制模型"></el-option>
                       <el-option label="电机模型" value="电机模型"></el-option>
                       <el-option label="数学模型" value="数学模型"></el-option>
@@ -39,16 +39,28 @@
                 </el-table-column>
                 <el-table-column
                   align="right"
-                  label="上传文件">
+                  label="上传文件"
+                  width="100">
                   <template slot-scope="scope">
                     <el-upload
-                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
+                      :show-file-list="false"
                       :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
                       <el-button size="small" type="primary">点击上传</el-button>
                     </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="right"
+                  label="文件信息"
+                  width="300">
+                  <template slot-scope="scope">
+                    <el-tag style="float: left" type="success">{{scope.row.file.name == '' ? '未上传' :
+                      scope.row.file.name}}
+                    </el-tag>
+                    <el-button @click="removeUpload(scope.row)" size="small" type="danger" plain>取消上传</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -56,7 +68,7 @@
                   label="操作"
                   width="80">
                   <template slot-scope="scope">
-                    <el-button type="danger" size="mini" @click="removeModel(scope.$index, MatlabModelList)">删除
+                    <el-button type="danger" size="small" @click="removeModel(scope.$index, MatlabModelList)">删除
                     </el-button>
                   </template>
                 </el-table-column>
@@ -83,11 +95,11 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="modelType"
+                  prop="type"
                   align="left"
                   label="模型类型">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                    <el-select v-model="scope.row.type" placeholder="请选择" size="mini">
                       <el-option label="湍流模型" value="湍流模型"></el-option>
                       <el-option label="流动和传热模型" value="流动和传热模型"></el-option>
                       <el-option label="多相流模型" value="多相流模型"></el-option>
@@ -97,16 +109,28 @@
                 </el-table-column>
                 <el-table-column
                   align="right"
-                  label="上传文件">
+                  label="上传文件"
+                  width="100">
                   <template slot-scope="scope">
                     <el-upload
-                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
+                      :show-file-list="false"
                       :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
                       <el-button size="small" type="primary">点击上传</el-button>
                     </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="right"
+                  label="文件信息"
+                  width="300">
+                  <template slot-scope="scope">
+                    <el-tag style="float: left" type="success">{{scope.row.file.name == '' ? '未上传' :
+                      scope.row.file.name}}
+                    </el-tag>
+                    <el-button @click="removeUpload(scope.row)" size="small" type="danger" plain>取消上传</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -141,11 +165,11 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="modelType"
+                  prop="type"
                   align="left"
                   label="模型类型">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                    <el-select v-model="scope.row.type" placeholder="请选择" size="mini">
                       <el-option label="控制模型" value="控制模型"></el-option>
                       <el-option label="电机模型" value="电机模型"></el-option>
                       <el-option label="数学模型" value="数学模型"></el-option>
@@ -155,16 +179,28 @@
                 </el-table-column>
                 <el-table-column
                   align="right"
-                  label="上传文件">
+                  label="上传文件"
+                  width="100">
                   <template slot-scope="scope">
                     <el-upload
-                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
+                      :show-file-list="false"
                       :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
                       <el-button size="small" type="primary">点击上传</el-button>
                     </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="right"
+                  label="文件信息"
+                  width="300">
+                  <template slot-scope="scope">
+                    <el-tag style="float: left" type="success">{{scope.row.file.name == '' ? '未上传' :
+                      scope.row.file.name}}
+                    </el-tag>
+                    <el-button @click="removeUpload(scope.row)" size="small" type="danger" plain>取消上传</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -199,11 +235,11 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="modelType"
+                  prop="type"
                   align="left"
                   label="模型类型">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                    <el-select v-model="scope.row.type" placeholder="请选择" size="mini">
                       <el-option label="控制模型" value="控制模型"></el-option>
                       <el-option label="电机模型" value="电机模型"></el-option>
                       <el-option label="数学模型" value="数学模型"></el-option>
@@ -213,16 +249,28 @@
                 </el-table-column>
                 <el-table-column
                   align="right"
-                  label="上传文件">
+                  label="上传文件"
+                  width="100">
                   <template slot-scope="scope">
                     <el-upload
-                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
+                      :show-file-list="false"
                       :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
                       <el-button size="small" type="primary">点击上传</el-button>
                     </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="right"
+                  label="文件信息"
+                  width="300">
+                  <template slot-scope="scope">
+                    <el-tag style="float: left" type="success">{{scope.row.file.name == '' ? '未上传' :
+                      scope.row.file.name}}
+                    </el-tag>
+                    <el-button @click="removeUpload(scope.row)" size="small" type="danger" plain>取消上传</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -257,11 +305,11 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="modelType"
+                  prop="type"
                   align="right"
                   label="模型类型">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                    <el-select v-model="scope.row.type" placeholder="请选择" size="mini">
                       <el-option label="控制模型" value="控制模型"></el-option>
                       <el-option label="电机模型" value="电机模型"></el-option>
                       <el-option label="数学模型" value="数学模型"></el-option>
@@ -270,17 +318,29 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  align="left"
-                  label="上传文件">
+                  align="right"
+                  label="上传文件"
+                  width="100">
                   <template slot-scope="scope">
                     <el-upload
-                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
+                      :show-file-list="false"
                       :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
                       <el-button size="small" type="primary">点击上传</el-button>
                     </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="right"
+                  label="文件信息"
+                  width="300">
+                  <template slot-scope="scope">
+                    <el-tag style="float: left" type="success">{{scope.row.file.name == '' ? '未上传' :
+                      scope.row.file.name}}
+                    </el-tag>
+                    <el-button @click="removeUpload(scope.row)" size="small" type="danger" plain>取消上传</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -316,11 +376,11 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="modelType"
+                  prop="type"
                   align="left"
                   label="模型类型">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.modelType" placeholder="请选择" size="mini">
+                    <el-select v-model="scope.row.type" placeholder="请选择" size="mini">
                       <el-option label="控制模型" value="控制模型"></el-option>
                       <el-option label="电机模型" value="电机模型"></el-option>
                       <el-option label="数学模型" value="数学模型"></el-option>
@@ -330,16 +390,28 @@
                 </el-table-column>
                 <el-table-column
                   align="right"
-                  label="上传文件">
+                  label="上传文件"
+                  width="100">
                   <template slot-scope="scope">
                     <el-upload
-                      style="height: 100%;"
                       :action="uploadUrl"
                       :limit="uploadLimit"
                       name="file"
+                      :show-file-list="false"
                       :on-success="function (resp, file, fileList) {return uploadSuccess(resp, file, fileList, scope.row)}">
                       <el-button size="small" type="primary">点击上传</el-button>
                     </el-upload>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="right"
+                  label="文件信息"
+                  width="300">
+                  <template slot-scope="scope">
+                    <el-tag style="float: left" type="success">{{scope.row.file.name == '' ? '未上传' :
+                      scope.row.file.name}}
+                    </el-tag>
+                    <el-button @click="removeUpload(scope.row)" size="small" type="danger" plain>取消上传</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -388,72 +460,78 @@
 
         MatlabModelList: [
           {
+            modelId: '',
             name: '',
-            modelType: '',
+            type: '',
             file: {
               fileId: '',
-              fileName: '',
-              filePath: ''
+              name: '',
+              path: ''
             }
           }
         ],
         FluentModelList: [
           {
+            modelId: '',
             name: '',
-            modelType: '',
+            type: '',
             file: {
               fileId: '',
-              fileName: '',
-              filePath: ''
+              name: '',
+              path: ''
             }
           }
         ],
         MultisimModelList: [
           {
+            modelId: '',
             name: '',
-            modelType: '',
+            type: '',
             file: {
               fileId: '',
-              fileName: '',
-              filePath: ''
+              name: '',
+              path: ''
             }
           }
         ],
         ProteusModelList: [
           {
+            modelId: '',
             name: '',
-            modelType: '',
+            type: '',
             file: {
               fileId: '',
-              fileName: '',
-              filePath: ''
+              name: '',
+              path: ''
             }
           }
         ],
         AutomationModelList: [
           {
+            modelId: '',
             name: '',
-            modelType: '',
+            type: '',
             file: {
               fileId: '',
-              fileName: '',
-              filePath: ''
+              name: '',
+              path: ''
             }
           }
         ],
         LabviewModelList: [
           {
+            modelId: '',
             name: '',
-            modelType: '',
+            type: '',
             file: {
               fileId: '',
-              fileName: '',
-              filePath: ''
+              name: '',
+              path: ''
             }
           }
         ],
         uploadUrl: 'http://localhost:9001/file/upload',
-        uploadLimit: 1,
+        uploadLimit: 99,
       }
     },
     mounted: function () {
@@ -462,113 +540,139 @@
     methods: {
       initData() {
         this.clearModelList();
+        let localProject = this.$store.state.project;
+        if (localProject.projectId != undefined && localProject.projectId != '') {
+          this.getRequest("sso-service", '/project/' + localProject.projectId).then(resp => {
+            this.$store.state.project = resp.data;
 
-        let softwareList = this.$store.state.project.software;
-        softwareList.forEach(software => {
-          if (this.activeName == 0) {
-            this.activeName = software.softwareName;
-          }
-          this.softwareShowList.push(software.softwareName);
-        });
+            let softwareList = this.$store.state.project.softwareList;
+            softwareList.forEach(software => {
+              if (this.activeName == 0) {
+                this.activeName = software.name;
+              }
+              this.softwareShowList.push(software.name);
+            });
+            let pause = false;
+            this.softwareSequence.forEach(name => {
+              this.softwareShowList.forEach(software => {
+                if (software.name == name && !pause) {
+                  this.activeName = name;
+                  pause = true;
+                }
+              })
+            });
 
-        this.softwareSequence.forEach(softwareName => {
-          this.softwareShowList.forEach(software => {
-            if (software.softwareName == softwareName) {
-              this.activeName = softwareName;
-              return;
-            }
-          })
-        });
-
-        softwareList.forEach(software => {
-          if (software.model != undefined) {
-            software.model.forEach(model => {
-              if (software.softwareName == 'Matlab') {
-                this.MatlabModelList.push(this.getNewModel(model));
-              } else if (software.softwareName == 'Fluent') {
-                this.FluentModelList.push(this.getNewModel(model));
-              } else if (software.softwareName == 'Multisim') {
-                this.MultisimModelList.push(this.getNewModel(model));
-              } else if (software.softwareName == 'Proteus') {
-                this.ProteusModelList.push(this.getNewModel(model));
-              } else if (software.softwareName == 'Automation') {
-                this.AutomationModelList.push(this.getNewModel(model));
-              } else if (software.softwareName == 'Labview') {
-                this.LabviewModelList.push(this.getNewModel(model));
+            softwareList.forEach(software => {
+              if (software.modelList != undefined) {
+                software.modelList.forEach(model => {
+                  if (software.name == 'Matlab') {
+                    this.MatlabModelList.push(model);
+                  } else if (software.name == 'Fluent') {
+                    this.FluentModelList.push(model);
+                  } else if (software.name == 'Multisim') {
+                    this.MultisimModelList.push(model);
+                  } else if (software.name == 'Proteus') {
+                    this.ProteusModelList.push(model);
+                  } else if (software.name == 'Automation') {
+                    this.AutomationModelList.push(model);
+                  } else if (software.name == 'Labview') {
+                    this.LabviewModelList.push(model);
+                  }
+                });
               }
             });
-          }
-        });
+          });
+        }
       },
       previous() {
         this.$router.replace({path: '/config/simSoftware'});
       },
       next() {
-        let softwareList = this.$store.state.project.software;
-        softwareList.forEach(software => {
-          software.model = [];
-          if (software.softwareName == 'Matlab') {
-            this.MatlabModelList.forEach(model => {
-              software.model.push(model);
-            })
-          } else if (software.softwareName == 'Fluent') {
-            this.FluentModelList.forEach(model => {
-              software.model.push(model);
-            })
-          } else if (software.softwareName == 'Multisim') {
-            this.MultisimModelList.forEach(model => {
-              software.model.push(model);
-            })
-          } else if (software.softwareName == 'Proteus') {
-            this.ProteusModelList.forEach(model => {
-              software.model.push(model);
-            })
-          } else if (software.softwareName == 'Automation') {
-            this.AutomationModelList.forEach(model => {
-              software.model.push(model);
-            })
-          } else if (software.softwareName == 'Labview') {
-            this.LabviewModelList.forEach(model => {
-              software.model.push(model);
-            })
-          }
-        });
-        this.$store.state.project.software = softwareList;
-        this.$router.replace({path: '/config/modelParam'});
+        let _this = this;
+        let localProject = this.$store.state.project;
+        if (localProject.projectId != undefined && localProject.projectId != '') {
+          let softwareList = this.$store.state.project.softwareList;
+          softwareList.forEach(software => {
+            software.modelList = [];
+            if (software.name == 'Matlab') {
+              this.MatlabModelList.forEach(model => {
+                software.modelList.push(model);
+              })
+            } else if (software.name == 'Fluent') {
+              this.FluentModelList.forEach(model => {
+                software.modelList.push(model);
+              })
+            } else if (software.name == 'Multisim') {
+              this.MultisimModelList.forEach(model => {
+                software.modelList.push(model);
+              })
+            } else if (software.name == 'Proteus') {
+              this.ProteusModelList.forEach(model => {
+                software.modelList.push(model);
+              })
+            } else if (software.name == 'Automation') {
+              this.AutomationModelList.forEach(model => {
+                software.modelList.push(model);
+              })
+            } else if (software.name == 'Labview') {
+              this.LabviewModelList.forEach(model => {
+                software.modelList.push(model);
+              })
+            }
+          });
+
+          this.putRequestJSON("sso-service", "/model?projectId=" + localProject.projectId, softwareList).then(resp => {
+            _this.formLoading = false;
+            if (resp.code == '000000') {
+              _this.$store.state.project = resp.data;
+              _this.$message({type: 'success', message: resp.msg});
+              this.$router.replace({path: '/config/modelParam'});
+            }
+          })
+        }
       },
-      getNewModel (model) {
+      getNewModel(model) {
         let newModel = {
-          modelType: model.modelType,
+          type: model.type,
           name: model.name,
           file: {
             fileId: model.file.fileId,
-            fileName: model.file.fileName,
-            filePath: model.file.filePath
+            name: model.file.name,
+            path: model.file.path
           }
         };
         return newModel;
       },
       uploadSuccess(resp, file, fileList, row) {
+        fileList = [];
         if (file != undefined) {
           row.file.fileId = resp.id;
-          row.file.fileName = resp.name;
-          row.file.filePath = resp.path;
+          row.file.name = resp.name;
+          row.file.path = resp.path;
         }
       },
       addModel(modelList) {
         let model = {
+          modelId: '',
           name: '',
-          modelType: '',
+          type: '',
           file: {
             fileId: '',
-            fileName: '',
-            filePath: ''
+            name: '',
+            path: ''
           }
         };
         modelList.push(model);
       },
       removeModel(index, modelList) {
         modelList.splice(index, 1);
+      },
+      removeUpload(row) {
+        row.file = {
+          fileId: '',
+          name: '未上传',
+          path: ''
+        }
       },
       clearModelList() {
         this.MatlabModelList = [];
@@ -588,7 +692,8 @@
     width: 700px;
     margin: 0 auto;
   }
-  .wz-cl{
+
+  .wz-cl {
     float: right;
   }
 
